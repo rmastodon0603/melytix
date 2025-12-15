@@ -1,10 +1,24 @@
 import { appendReport, saveLastAnalysis } from "./storage";
 
+export type AnalysisItem = {
+  title: string;
+  details?: string;
+  level?: string;
+  impact?: string;
+  metric?: string;
+  // Allow additional fields without breaking
+  [key: string]: unknown;
+};
+
 export type AnalyzeResponse = {
-  insights: unknown[];
-  alerts: unknown[];
-  recommendations: unknown[];
-  raw?: unknown;
+  insights: AnalysisItem[];
+  alerts: AnalysisItem[];
+  recommendations: AnalysisItem[];
+  raw?: {
+    currentFileName?: string;
+    previousFileName?: string;
+    [key: string]: unknown;
+  };
 };
 
 export type RunAnalysisInput = {

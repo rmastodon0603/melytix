@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
         {
           role: "system",
           content:
-            "You are a senior User Acquisition analyst for mobile apps using Google Ads. Analyze the differences between two datasets from Google Ads campaigns (current period vs previous period). You must detect performance changes, anomalies, and opportunities.",
+            "You are a senior User Acquisition analyst for mobile apps using Google Ads. Analyze the differences between two datasets from Google Ads campaigns (current period vs previous period). You must detect performance changes, anomalies, and opportunities. For every alert, insight and recommendation, write a short analytical paragraph of 2–5 sentences that explains:\n- what changed,\n- which approximate metrics or percentage changes support this,\n- why it matters for the business,\n- and, when possible, 1–2 likely causes or hypotheses.",
         },
         {
           role: "user",
@@ -50,7 +50,13 @@ export async function POST(req: NextRequest) {
                 currentText +
                 "\n\nPrevious period data:\n" +
                 previousText +
-                "\n\nReturn your analysis STRICTLY in JSON format with this structure:\n\n" +
+                "\n\nFor the JSON you return, follow these guidelines:\n\n" +
+                '- In "alerts": provide analytical paragraphs that explain why this is important, which metrics changed (e.g. CTR, CPC, CPA, conversions, spend) and by roughly how much, and what could be the cause (e.g. creative fatigue, audience saturation, GEO mix, device mix).\n' +
+                '- In "insights": describe interesting or positive trends, approximate percentage changes, and what opportunity they represent (e.g. which campaigns, ad groups, creatives or GEOs could be scaled).\n' +
+                '- In "recommendations": speak like a senior UA manager. For each item, clearly say what to do, why this action makes sense, and which metrics justify it (with rough percentage changes where possible).\n' +
+                "- If some metrics are missing in the data, you may still infer reasonable percentage changes based on spend, clicks, conversions or other visible columns.\n" +
+                "- Each `details` field should be a compact but rich paragraph that feels like a mini-analysis, not just a single sentence.\n\n" +
+                "Return your analysis STRICTLY in JSON format with this structure:\n\n" +
                 '{\n  "alerts": [\n    { "title": "string", "level": "critical|warning|positive", "details": "string" }\n  ],\n  "insights": [\n    { "title": "string", "details": "string" }\n  ],\n  "recommendations": [\n    { "title": "string", "details": "string" }\n  ]\n}\n',
             },
           ],

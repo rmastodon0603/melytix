@@ -3,7 +3,7 @@
 import AlertCard from "../../components/AlertCard";
 import InsightCard from "../../components/InsightCard";
 import RecommendationCard from "../../components/RecommendationCard";
-import { AnalyzeResponse } from "../../services/analyzeAPI";
+import { AnalyzeResponse, type AnalysisItem } from "../../services/analyzeAPI";
 import { loadLastAnalysis } from "../../services/storage";
 import { useEffect, useState } from "react";
 
@@ -46,12 +46,10 @@ export default function ResultsPage() {
               </h2>
               {Array.isArray(analysis.alerts) && analysis.alerts.length > 0 ? (
                 <div className="mt-3 space-y-3">
-                  {analysis.alerts.map((alert: any) => (
+                  {analysis.alerts.map((alert: AnalysisItem, index: number) => (
                     <AlertCard
-                      key={alert.id ?? alert.title}
-                      title={alert.title}
-                      description={alert.description}
-                      severity={alert.severity}
+                      key={(alert as any).id ?? alert.title ?? index}
+                      item={alert}
                     />
                   ))}
                 </div>
@@ -69,14 +67,14 @@ export default function ResultsPage() {
               {Array.isArray(analysis.insights) &&
               analysis.insights.length > 0 ? (
                 <div className="mt-3 space-y-3">
-                  {analysis.insights.map((insight: any) => (
-                    <InsightCard
-                      key={insight.id ?? insight.title}
-                      title={insight.title}
-                      metric={insight.metric}
-                      description={insight.description}
-                    />
-                  ))}
+                  {analysis.insights.map(
+                    (insight: AnalysisItem, index: number) => (
+                      <InsightCard
+                        key={(insight as any).id ?? insight.title ?? index}
+                        item={insight}
+                      />
+                    ),
+                  )}
                 </div>
               ) : (
                 <p className="mt-2 text-xs text-zinc-500">
@@ -92,14 +90,14 @@ export default function ResultsPage() {
               {Array.isArray(analysis.recommendations) &&
               analysis.recommendations.length > 0 ? (
                 <div className="mt-3 space-y-3">
-                  {analysis.recommendations.map((rec: any) => (
-                    <RecommendationCard
-                      key={rec.id ?? rec.title}
-                      title={rec.title}
-                      description={rec.description}
-                      impact={rec.impact}
-                    />
-                  ))}
+                  {analysis.recommendations.map(
+                    (rec: AnalysisItem, index: number) => (
+                      <RecommendationCard
+                        key={(rec as any).id ?? rec.title ?? index}
+                        item={rec}
+                      />
+                    ),
+                  )}
                 </div>
               ) : (
                 <p className="mt-2 text-xs text-zinc-500">
