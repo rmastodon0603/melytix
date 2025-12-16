@@ -41,11 +41,11 @@ export default function FileUploader() {
 
     try {
       setIsSubmitting(true);
-      await runAnalysis({
+      const entry = await runAnalysis({
         current: currentFile.file,
         previous: previousFile.file,
       });
-      router.push("/results");
+      router.push(`/results/${entry.id}`);
     } catch (err) {
       console.error(err);
       setError("Failed to run analysis. Please try again.");

@@ -1,4 +1,7 @@
-import { appendReport, saveLastAnalysis } from "./storage";
+import {
+  saveAnalysisToHistory,
+  type StoredAnalysisEntry,
+} from "./storage";
 
 export type AnalysisItem = {
   title: string;
@@ -29,7 +32,7 @@ export type RunAnalysisInput = {
 // Logic for calling /api/analyze with FormData
 export async function runAnalysis(
   input: RunAnalysisInput,
-): Promise<AnalyzeResponse> {
+): Promise<StoredAnalysisEntry> {
   // Use FormData to send raw files to the backend
   const formData = new FormData();
   formData.append("current", input.current);
@@ -46,38 +49,12 @@ export async function runAnalysis(
 
   const data = (await res.json()) as AnalyzeResponse;
 
-  // Persist last analysis using storage service
-  saveLastAnalysis(data);
+  // Persist to history (also sets lastAnalysisId)
+  const entry = saveAnalysisToHistory(data, {
+    currentFileName: (data.raw as any)?.currentFileName,
+    previousFileName: (data.raw as any)?.previousFileName,
+  });
 
-  // Also append a simple history entry
-  try {
-    const alertsCount = Array.isArray(data.alerts) ? data.alerts.length : 0;
-    const insightsCount = Array.isArray(data.insights)
-      ? data.insights.length
-      : 0;
-    const recsCount = Array.isArray(data.recommendations)
-      ? data.recommendations.length
-      : 0;
-
-    const summary = `${alertsCount} alerts, ${insightsCount} insights, ${recsCount} recommendations`;
-    const raw: any = data.raw ?? {};
-
-    const id =
-      typeof crypto !== "undefined" && "randomUUID" in crypto
-        ? crypto.randomUUID()
-        : String(Date.now());
-
-    appendReport({
-      id,
-      createdAt: new Date().toISOString(),
-      fileName: raw.currentFileName ?? undefined,
-      summary,
-      result: data,
-    });
-  } catch {
-    // history is a best-effort feature; ignore failures
-  }
-
-  return data;
+  return entry;
 }
 
