@@ -3,20 +3,54 @@ import {
   type StoredAnalysisEntry,
 } from "./storage";
 
-export type AnalysisItem = {
+// New narrative structure types
+export type KeyChange = {
+  metric: string;
+  current: string | number;
+  previous: string | number;
+  delta_abs: string | number;
+  delta_pct: string | number;
+  interpretation: string;
+};
+
+export type Overview = {
+  headline: string;
+  summary: string;
+  direction: "up" | "down" | "flat" | "mixed";
+  key_changes: KeyChange[];
+};
+
+export type EvidenceItem = {
+  metric: string;
+  current: string | number;
+  previous: string | number;
+  delta_pct: string | number;
+  notes: string;
+};
+
+export type Driver = {
   title: string;
-  details?: string;
-  level?: string;
-  impact?: string;
-  metric?: string;
-  // Allow additional fields without breaking
-  [key: string]: unknown;
+  what_changed: string;
+  evidence: EvidenceItem[];
+  where: {
+    level: "account" | "campaign" | "ad_group" | "ad" | "geo" | "device";
+    name: string;
+  };
+  why_hypothesis: string;
+};
+
+export type Recommendation = {
+  title: string;
+  rationale: string;
+  actions: string[];
+  expected_impact: string;
+  priority: "high" | "medium" | "low";
 };
 
 export type AnalyzeResponse = {
-  insights: AnalysisItem[];
-  alerts: AnalysisItem[];
-  recommendations: AnalysisItem[];
+  overview: Overview;
+  drivers: Driver[];
+  recommendations: Recommendation[];
   raw?: {
     currentFileName?: string;
     previousFileName?: string;

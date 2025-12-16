@@ -45,17 +45,28 @@ function getLastAnalysisId(): string | null {
 }
 
 function generateSummary(result: AnalyzeResponse): string {
-  const alertsCount = Array.isArray(result.alerts) ? result.alerts.length : 0;
-  const insightsCount = Array.isArray(result.insights)
-    ? result.insights.length
+  // New narrative structure: use overview headline if available
+  if (result.overview?.headline) {
+    const driversCount = Array.isArray(result.drivers) ? result.drivers.length : 0;
+    const recsCount = Array.isArray(result.recommendations)
+      ? result.recommendations.length
+      : 0;
+    const direction = result.overview.direction || "mixed";
+    return `${result.overview.headline} (${direction}) • ${driversCount} drivers • ${recsCount} recs`;
+  }
+
+  // Fallback for old structure (backward compatibility)
+  const alertsCount = Array.isArray((result as any).alerts) ? (result as any).alerts.length : 0;
+  const insightsCount = Array.isArray((result as any).insights)
+    ? (result as any).insights.length
     : 0;
   const recsCount = Array.isArray(result.recommendations)
     ? result.recommendations.length
     : 0;
 
   const firstTitle =
-    (result.alerts?.[0] as any)?.title ||
-    (result.insights?.[0] as any)?.title ||
+    ((result as any).alerts?.[0] as any)?.title ||
+    ((result as any).insights?.[0] as any)?.title ||
     (result.recommendations?.[0] as any)?.title;
 
   const counts = `${alertsCount} alerts • ${insightsCount} insights • ${recsCount} recs`;

@@ -2,12 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import AlertCard from "../../../components/AlertCard";
-import InsightCard from "../../../components/InsightCard";
-import RecommendationCard from "../../../components/RecommendationCard";
+import OverviewSection from "../../../components/OverviewSection";
+import DriverCard from "../../../components/DriverCard";
+import RecommendationCardNew from "../../../components/RecommendationCardNew";
 import {
   type AnalyzeResponse,
-  type AnalysisItem,
 } from "../../../services/analyzeAPI";
 import {
   getAnalysisById,
@@ -34,6 +33,9 @@ export default function ResultsByIdPage() {
   }, [id]);
 
   const analysis: AnalyzeResponse | null = entry?.result ?? null;
+
+  // Check if this is the new narrative structure
+  const isNewStructure = analysis && "overview" in analysis && "drivers" in analysis;
 
   return (
     <main className="min-h-screen w-full bg-zinc-50 px-4 py-10">
@@ -64,76 +66,65 @@ export default function ResultsByIdPage() {
           </div>
         ) : null}
 
-        {analysis ? (
+        {analysis && isNewStructure ? (
           <div className="space-y-8">
+            {/* Overview Section */}
+            {analysis.overview && (
+              <section>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-700">
+                    Overview
+                  </h2>
+                  <CopyJsonButton data={analysis} />
+                </div>
+                <OverviewSection overview={analysis.overview} />
+              </section>
+            )}
+
+            {/* Drivers Section */}
             <section>
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-700">
-                  Alerts
-                </h2>
-                <CopyJsonButton data={analysis} />
-              </div>
-              {Array.isArray(analysis.alerts) && analysis.alerts.length > 0 ? (
-                <div className="mt-3 space-y-3">
-                  {analysis.alerts.map((alert: AnalysisItem, index: number) => (
-                    <AlertCard
-                      key={(alert as any).id ?? alert.title ?? index}
-                      item={alert}
-                    />
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-700 mb-3">
+                Why It Happened
+              </h2>
+              {Array.isArray(analysis.drivers) && analysis.drivers.length > 0 ? (
+                <div className="space-y-3">
+                  {analysis.drivers.map((driver, index) => (
+                    <DriverCard key={index} driver={driver} />
                   ))}
                 </div>
               ) : (
-                <p className="mt-2 text-xs text-zinc-500">
-                  No alerts detected in this analysis.
+                <p className="text-xs text-zinc-500">
+                  No drivers identified in this analysis.
                 </p>
               )}
             </section>
 
+            {/* Recommendations Section */}
             <section>
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-700">
-                Insights
-              </h2>
-              {Array.isArray(analysis.insights) &&
-              analysis.insights.length > 0 ? (
-                <div className="mt-3 space-y-3">
-                  {analysis.insights.map(
-                    (insight: AnalysisItem, index: number) => (
-                      <InsightCard
-                        key={(insight as any).id ?? insight.title ?? index}
-                        item={insight}
-                      />
-                    ),
-                  )}
-                </div>
-              ) : (
-                <p className="mt-2 text-xs text-zinc-500">
-                  No insights generated for this analysis.
-                </p>
-              )}
-            </section>
-
-            <section>
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-700">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-700 mb-3">
                 Recommendations
               </h2>
               {Array.isArray(analysis.recommendations) &&
               analysis.recommendations.length > 0 ? (
-                <div className="mt-3 space-y-3">
-                  {analysis.recommendations.map(
-                    (rec: AnalysisItem, index: number) => (
-                      <RecommendationCard
-                        key={(rec as any).id ?? rec.title ?? index}
-                        item={rec}
-                      />
-                    ),
-                  )}
+                <div className="space-y-3">
+                  {analysis.recommendations.map((rec, index) => (
+                    <RecommendationCardNew
+                      key={index}
+                      recommendation={rec}
+                    />
+                  ))}
                 </div>
               ) : (
-                <p className="mt-2 text-xs text-zinc-500">
+                <p className="text-xs text-zinc-500">
                   No recommendations were generated.
                 </p>
               )}
             </section>
+          </div>
+        ) : analysis ? (
+          // Fallback for old structure (backward compatibility)
+          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-6 text-sm text-amber-800">
+            This analysis uses an older format. Please run a new analysis to see the updated narrative structure.
           </div>
         ) : null}
       </div>
