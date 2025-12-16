@@ -13,6 +13,7 @@ export default function FileUploader() {
   const router = useRouter();
   const [currentFile, setCurrentFile] = useState<FileWithName | null>(null);
   const [previousFile, setPreviousFile] = useState<FileWithName | null>(null);
+  const [customInstructions, setCustomInstructions] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,6 +45,7 @@ export default function FileUploader() {
       const entry = await runAnalysis({
         current: currentFile.file,
         previous: previousFile.file,
+        customInstructions: customInstructions.trim(),
       });
       router.push(`/results/${entry.id}`);
     } catch (err) {
@@ -94,6 +96,23 @@ export default function FileUploader() {
             Selected: {previousFile.label}
           </p>
         )}
+      </div>
+
+      <div className="space-y-1">
+        <label className="block text-xs font-medium uppercase tracking-wide text-zinc-700">
+          Custom instructions <span className="font-normal text-zinc-500">(optional)</span>
+        </label>
+        <textarea
+          value={customInstructions}
+          onChange={(e) => setCustomInstructions(e.target.value)}
+          placeholder="e.g., Current period includes a 20% budget increase starting Monday.&#10;Previous period had tracking issues on iOS.&#10;These files are only US + CA campaigns."
+          maxLength={2000}
+          rows={4}
+          className="block w-full resize-y rounded-md border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-700 placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500"
+        />
+        <p className="text-[11px] text-zinc-500">
+          {customInstructions.length}/2000 characters
+        </p>
       </div>
 
       {error && (

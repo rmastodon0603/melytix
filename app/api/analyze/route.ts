@@ -8,6 +8,7 @@ export async function POST(req: NextRequest) {
   const formData = await req.formData();
   const currentFile = formData.get("current");
   const previousFile = formData.get("previous");
+  const customInstructions = (formData.get("customInstructions")?.toString() || "").trim();
 
   if (!(currentFile instanceof File) || !(previousFile instanceof File)) {
     return NextResponse.json(
@@ -54,6 +55,9 @@ export async function POST(req: NextRequest) {
               type: "text",
               text:
                 "You are given two datasets exported from Google Ads as plain text (CSV/XLS converted to text):\n\n" +
+                (customInstructions
+                  ? `User-provided context (optional). Use this to interpret the datasets. If it conflicts with the data, call out the conflict and proceed using the data as primary truth:\n${customInstructions}\n\n`
+                  : "User-provided context (optional): none\n\n") +
                 "Dataset A — Current period:\n" +
                 currentText +
                 "\n\nDataset B — Previous period:\n" +
@@ -168,9 +172,15 @@ export async function POST(req: NextRequest) {
     if (!Array.isArray(parsed.overview?.key_changes))
       parsed.overview.key_changes = [];
 
-    // Attach raw filenames for downstream usage (e.g. history)
+    // Attach metadata for downstream usage (e.g. history)
     const responseWithMeta = {
       ...parsed,
+      meta: {
+        customInstructions: customInstructions || undefined,
+        currentFileName: currentFile.name,
+        previousFileName: previousFile.name,
+        createdAt: new Date().toISOString(),
+      },
       raw: {
         currentFileName: currentFile.name,
         previousFileName: previousFile.name,

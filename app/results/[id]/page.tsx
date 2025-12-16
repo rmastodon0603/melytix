@@ -68,6 +68,22 @@ export default function ResultsByIdPage() {
 
         {analysis && isNewStructure ? (
           <div className="space-y-8">
+            {/* Context Section (Custom Instructions) */}
+            {(entry?.source?.customInstructions || analysis.meta?.customInstructions) && (
+              <section>
+                <details className="group rounded-lg border border-zinc-200 bg-white">
+                  <summary className="cursor-pointer px-4 py-3 text-xs font-semibold uppercase tracking-wide text-zinc-700 hover:bg-zinc-50">
+                    Context used for analysis
+                  </summary>
+                  <div className="border-t border-zinc-200 px-4 py-3">
+                    <p className="whitespace-pre-wrap text-sm leading-relaxed text-zinc-700">
+                      {entry?.source?.customInstructions || analysis.meta?.customInstructions}
+                    </p>
+                  </div>
+                </details>
+              </section>
+            )}
+
             {/* Overview Section */}
             {analysis.overview && (
               <section>

@@ -10,6 +10,7 @@ export type StoredAnalysisEntry = {
   source?: {
     currentFileName?: string;
     previousFileName?: string;
+    customInstructions?: string;
   };
   result: AnalyzeResponse;
 };
@@ -82,7 +83,7 @@ function newId() {
 
 export function saveAnalysisToHistory(
   result: AnalyzeResponse,
-  meta?: { currentFileName?: string; previousFileName?: string },
+  meta?: { currentFileName?: string; previousFileName?: string; customInstructions?: string },
 ): StoredAnalysisEntry {
   if (typeof window === "undefined") {
     // If somehow called server-side, just return a synthetic entry

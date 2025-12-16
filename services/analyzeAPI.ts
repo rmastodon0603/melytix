@@ -51,6 +51,13 @@ export type AnalyzeResponse = {
   overview: Overview;
   drivers: Driver[];
   recommendations: Recommendation[];
+  meta?: {
+    customInstructions?: string;
+    currentFileName?: string;
+    previousFileName?: string;
+    createdAt?: string;
+    [key: string]: unknown;
+  };
   raw?: {
     currentFileName?: string;
     previousFileName?: string;
@@ -61,6 +68,7 @@ export type AnalyzeResponse = {
 export type RunAnalysisInput = {
   current: File;
   previous: File;
+  customInstructions?: string;
 };
 
 // Logic for calling /api/analyze with FormData
@@ -71,6 +79,9 @@ export async function runAnalysis(
   const formData = new FormData();
   formData.append("current", input.current);
   formData.append("previous", input.previous);
+  if (input.customInstructions) {
+    formData.append("customInstructions", input.customInstructions);
+  }
 
   const res = await fetch("/api/analyze", {
     method: "POST",
@@ -85,8 +96,9 @@ export async function runAnalysis(
 
   // Persist to history (also sets lastAnalysisId)
   const entry = saveAnalysisToHistory(data, {
-    currentFileName: (data.raw as any)?.currentFileName,
-    previousFileName: (data.raw as any)?.previousFileName,
+    currentFileName: (data.meta?.currentFileName || data.raw?.currentFileName) as string | undefined,
+    previousFileName: (data.meta?.previousFileName || data.raw?.previousFileName) as string | undefined,
+    customInstructions: data.meta?.customInstructions as string | undefined,
   });
 
   return entry;

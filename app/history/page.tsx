@@ -52,6 +52,9 @@ export default function HistoryPage() {
                     Files
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-zinc-700">
+                    Notes
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-zinc-700">
                     Action
                   </th>
                 </tr>
@@ -69,6 +72,15 @@ export default function HistoryPage() {
                       {item.source?.currentFileName || item.source?.previousFileName
                         ? `${item.source?.currentFileName ?? "current"} vs ${item.source?.previousFileName ?? "previous"}`
                         : "—"}
+                    </td>
+                    <td className="px-4 py-2 align-top text-xs text-zinc-500">
+                      {item.source?.customInstructions ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700">
+                          Has notes
+                        </span>
+                      ) : (
+                        "—"
+                      )}
                     </td>
                     <td className="px-4 py-2 align-top text-xs text-emerald-700">
                       <Link
