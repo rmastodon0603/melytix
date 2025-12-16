@@ -43,3 +43,5 @@ node_modules/
 .env.local
 .next/
 .DS_Store
+test_file_1.csv
+test_file_2.csv
